@@ -5,3 +5,4 @@ all:
 
 align:
   target_fasta: "/path/to/reference.fasta"
+  #target_fasta: "reference/MN985325_1.fasta"  
