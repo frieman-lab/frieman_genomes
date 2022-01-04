@@ -1,7 +1,7 @@
 all:
   root_dir: "/path/to/root/dir"
   output_dir: "output"
-  sample_list: "/path/to/sample_list.tsv"
+  sample_list: "/path/to/samples.tsv"
 
 align:
   target_fasta: "/path/to/reference.fasta"
