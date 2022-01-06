@@ -6,8 +6,6 @@
 from pathlib import Path
 import pandas as pd
 
-#ruleorder: unify_alignments_bt2 > sort_index_bam
-
 # initialize
 
 #sample_name     paired  method  r1      r2
@@ -21,12 +19,7 @@ def read_samples(sample_list):
   return sample_dict
 
 sample_dict = read_samples(Path(config["all"]["sample_list"]))
-
-print(sample_dict)
-
 output_dir = Path(config["all"]["root_dir"])/Path(config["all"]["output_dir"])
-
-
 
 # align
 rule build_bt2_index:
@@ -43,8 +36,6 @@ rule align_bt2:
     index_generated = rules.build_bt2_index.output,
     r1 = lambda wildcards: sample_dict[wildcards.sample]['r1'],
     r2 = lambda wildcards: sample_dict[wildcards.sample]['r2']
-#    r1 = sample_dict['{sample}']['r1'],
-#    r2 = sample_dict['{sample}']['r2']
   output: output_dir/'align'/'bt2'/'{sample}.bam'
   params:
     bt2_index = str(output_dir/'db'/'bt2'/'target'),
@@ -64,9 +55,6 @@ rule unify_alignments_bt2:
     """
     ln -sr {input} {output}
     """
-
-#rule unify_alignments_mm2:
-#  input:
 
 rule all_align:
   input: expand(output_dir/'align'/'{sample}.bam', sample = sample_dict.keys())
@@ -141,11 +129,6 @@ rule all_summarize:
     sorted_bam = expand(output_dir/'summary'/'{sample}'/'{sample}_sorted.bam', sample = sample_dict.keys()),
     index = expand(output_dir/'summary'/'{sample}'/'{sample}_sorted.bam.bai', sample = sample_dict.keys()),
     vcf = expand(output_dir/'summary'/'{sample}'/'{sample}_calls.vcf', sample = sample_dict.keys())
- 
-#    consensus = expand(output_dir/'consensus'/'{sample}'/'{sample}_raw.fasta', sample = sample_dict.keys()),
-#    indices = expand(output_dir/'align'/'{sample}_sorted.bam.bai', sample = sample_dict.keys())
-
-#rule all_summarize:
 
 rule all:
   input:
