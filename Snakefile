@@ -11,10 +11,14 @@ import pandas as pd
 #sample_name     paired  method  r1      r2
 
 def read_samples(sample_list):
-  ## TODO: confirm all samples are unique!
   sample_dict = {}
-  for l in open(sample_list).readlines()[1:]:
+  added_samples = []
+  for l in open(sample_list).readlines()[1:]: # use pandas
     fields = l.split()
+    if fields[0] in added_samples:
+      raise RuntimeError("Not all samples have unique names")
+    else:
+      added_samples.append(fields[0])
     sample_dict[fields[0]] = {'paired':fields[1] == "True", 'method':fields[2], 'r1':Path(fields[3]), 'r2':Path(fields[4])}
   return sample_dict
 
