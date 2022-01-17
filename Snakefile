@@ -134,6 +134,3 @@ rule all_summarize:
     index = expand(output_dir/'summary'/'{sample}'/'{sample}_sorted.bam.bai', sample = sample_dict.keys()),
     vcf = expand(output_dir/'summary'/'{sample}'/'{sample}_calls.vcf', sample = sample_dict.keys())
 
-rule all:
-  input:
-    output_dir/"genome_completed_list.txt"
