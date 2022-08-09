@@ -1,13 +1,13 @@
 # -*- mode: Snakemake -*-
-#
+
 # Workflow for building SARS-CoV-2 genomes from short or long read sequencing. 
-#
 
 from pathlib import Path
 import pandas as pd
 
 # initialize
 
+# sample sheet format:
 #sample_name     paired  method  r1      r2
 
 def read_samples(sample_list):
