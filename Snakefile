@@ -1,6 +1,6 @@
 # -*- mode: Snakemake -*-
 
-# Workflow for building SARS-CoV-2 genomes from short or long read sequencing. 
+# Workflow for viral genomes from short read sequencing. Long TBA
 
 from pathlib import Path
 import pandas as pd
