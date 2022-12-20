@@ -3,7 +3,6 @@
 # Workflow for viral genomes from short read sequencing. Long TBA
 
 from pathlib import Path
-import pandas as pd
 
 # initialize
 
