@@ -5,4 +5,4 @@ all:
 
 align:
   target_fasta: "/path/to/reference.fasta"
-  #target_fasta: "reference/MN985325_1.fasta"  
+  #target_fasta: "reference/MN985325_1.fasta" # SARS-CoV-2 reference

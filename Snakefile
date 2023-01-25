@@ -1,6 +1,6 @@
 # -*- mode: Snakemake -*-
 
-# Workflow for viral genomes from short read sequencing. Long TBA
+# Workflow for viral genomes from short read sequencing.
 
 from pathlib import Path
 
@@ -15,7 +15,7 @@ def read_samples(sample_list):
   for l in open(sample_list).readlines()[1:]: # use pandas
     fields = l.split()
     if fields[0] in added_samples:
-      raise RuntimeError("Not all samples have unique names")
+      raise RuntimeError("Not all samples have unique names:" + fields[0] + "appears twice.")
     else:
       added_samples.append(fields[0])
     sample_dict[fields[0]] = {'paired':fields[1] == "True", 'method':fields[2], 'r1':Path(fields[3]), 'r2':Path(fields[4])}
