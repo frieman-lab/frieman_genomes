@@ -51,7 +51,8 @@ rule align_bt2:
     rm {params.sam}
     """
 
-rule unify_alignments_bt2:
+# symlink to summary dir
+rule symlink_alignments_bt2:
   input: rules.align_bt2.output
   output: str(output_dir/'align'/'{sample}.bam')
   shell: 
