@@ -69,10 +69,11 @@ rule sort_index_bam:
   output:
     sorted_bam = str(output_dir/'align'/'{sample}.bam.sorted'),
     index = str(output_dir/'align'/'{sample}.bam.sorted.bai')
+  threads: 10
   shell:
     """
-    samtools sort -o {output.sorted_bam} {input}
-    samtools index {output.sorted_bam} {output.index}
+    samtools sort -@ {threads} -o {output.sorted_bam} {input}
+    samtools index -@ {threads} {output.sorted_bam} {output.index}
     """
 
 rule generate_vcf:
