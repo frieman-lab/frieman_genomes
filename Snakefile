@@ -29,9 +29,10 @@ rule build_bt2_index:
   input: config["align"]["target_fasta"]
   output: output_dir/'db'/'bt2'/'target.1.bt2'
   params: target = str(output_dir/'db'/'bt2'/'target')
+  threads: 10
   shell:
     """
-    bowtie2-build {input} {params.target}
+    bowtie2-build {input} {params.target} --threads {threads}
     """
 
 rule align_bt2:
