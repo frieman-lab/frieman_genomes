@@ -86,14 +86,15 @@ rule generate_vcf:
     compressed_vcf = str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}_calls.vcf.gz')
   params:
     prefix = str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}')
+  threads: 10
   shell:
     """
     bcftools mpileup -Ou --max-depth 10000 --max-idepth 10000 --annotate FORMAT/AD -f {input.ref} {input.sorted_bam} | bcftools call -mv -Oz -o {params.prefix}_unfilled_calls.vcf.gz
-    bcftools index {params.prefix}_unfilled_calls.vcf.gz
-    bcftools norm -f {input.ref} {params.prefix}_unfilled_calls.vcf.gz -Ob -o {params.prefix}_calls.norm.bcf
-    bcftools filter --IndelGap 5 {params.prefix}_calls.norm.bcf -Ob -o {params.prefix}_calls.norm.flt-indels.bcf
+    bcftools index {params.prefix}_unfilled_calls.vcf.gz --threads {threads}
+    bcftools norm -f {input.ref} {params.prefix}_unfilled_calls.vcf.gz -Ob -o {params.prefix}_calls.norm.bcf --threads {threads}
+    bcftools filter --IndelGap 5 {params.prefix}_calls.norm.bcf -Ob -o {params.prefix}_calls.norm.flt-indels.bcf --threads {threads}
     bcftools +fill-tags {params.prefix}_unfilled_calls.vcf.gz -Oz -o {output.compressed_vcf} -- -t VAF
-    bcftools index {output.compressed_vcf}
+    bcftools index {output.compressed_vcf} --threads {threads}
     gzip -cd {output.compressed_vcf} > {output.vcf}
     """
 
