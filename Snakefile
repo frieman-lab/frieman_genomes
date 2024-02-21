@@ -1,6 +1,6 @@
 # -*- mode: Snakemake -*-
 
-# Workflow for viral genomes from short read sequencing.
+# Workflow for viral genomes from short or long read sequencing.
 
 from pathlib import Path
 
@@ -24,7 +24,7 @@ def read_samples(sample_list):
 sample_dict = read_samples(Path(config["all"]["sample_list"]))
 output_dir = Path(config["all"]["root_dir"])/Path(config["all"]["output_dir"])
 
-# align
+# build indices
 rule build_bt2_index:
   input: config["align"]["target_fasta"]
   output: output_dir/'db'/'bt2'/'target.1.bt2'
@@ -35,6 +35,17 @@ rule build_bt2_index:
     bowtie2-build {input} {params.target} --threads {threads}
     """
 
+rule build_mm2_index:
+  input: config["align"]["target_fasta"]
+  output: output_dir/'db'/'mm2'/'target.mmi'
+  params: opt = "map-ont" # option to make user-configurable
+  threads: 10
+  shell:
+    """
+    minimap2 -x {params.opt} -t {threads} -d {output} {input}
+    """
+
+# align
 rule align_bt2:
   input:
     index_generated = rules.build_bt2_index.output,
@@ -52,7 +63,7 @@ rule align_bt2:
     rm {params.sam}
     """
 
-# symlink to summary dir
+# fork between illumina/ont here
 rule symlink_alignments_bt2:
   input: rules.align_bt2.output
   output: str(output_dir/'align'/'{sample}.bam')
