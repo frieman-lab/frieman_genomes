@@ -63,7 +63,34 @@ rule align_bt2:
     rm {params.sam}
     """
 
+rule align_mm2:
+  input:
+    index = rules.build_mm2_index.output,
+    r1 = lambda wildcards: sample_dict[wildcards.sample]['r1'],
+    r2 = lambda wildcards: sample_dict[wildcards.sample]['r2']
+  output: output_dir/'align'/'mm2'/'{sample}.bam'
+  params:
+    sam = str(output_dir/'align'/'mm2'/'{sample}.sam')
+    opt = "map-ont"
+  threads: 10
+  shell:
+    """
+    minimap2 -a {input.index} -t {threads} {input.r1} {input.r2} > {output}
+    samtools view -u -@ {threads} -o {output} {params.sam}
+    rm {params.sam}
+    """
+
 # fork between illumina/ont here
+
+if config["align"]
+rule symlink_alignments_mm2:
+  input: rules.align_mm2.output
+  output: str(output_dir/'align'/'{sample}.bam')
+  shell:
+    """
+    ln -sr {input} {output}
+    """
+
 rule symlink_alignments_bt2:
   input: rules.align_bt2.output
   output: str(output_dir/'align'/'{sample}.bam')
