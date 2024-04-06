@@ -82,6 +82,16 @@ rule align_mm2:
 
 # fork between illumina/ont here
 
+methods_map = {'short': 'bt2', 'long': 'mm2'}
+
+rule all_methods_fork:
+  input: bam = lambda wildcards: str(output_dir/'align'/methods_map[sample_dict[wildcards.sample]['method']]/wildcards.sample+'.bam')
+  output: str(output_dir/'align'/'{sample}.bam')
+    shell:
+      """
+      ln -sr {input} {output}
+      """
+
 if config["align"]["seq_method"] == "ont":
   rule symlink_alignments_mm2:
     input: rules.align_mm2.output
@@ -106,14 +116,15 @@ rule all_align:
 
 # summarize
 rule sort_index_bam:
-  input: str(output_dir/'align'/'{sample}.bam')
+  input:
+    bam = str(output_dir/'align'/'{sample}.bam')
   output:
     sorted_bam = str(output_dir/'align'/'{sample}.bam.sorted'),
     index = str(output_dir/'align'/'{sample}.bam.sorted.bai')
   threads: 10
   shell:
     """
-    samtools sort -@ {threads} -o {output.sorted_bam} {input}
+    samtools sort -@ {threads} -o {output.sorted_bam} {input.bam}
     samtools index -@ {threads} {output.sorted_bam} {output.index}
     """
 
