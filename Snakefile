@@ -82,7 +82,7 @@ rule align_mm2:
 
 # fork between illumina/ont here
 
-methods_map = {'short': 'bt2', 'long': 'mm2'}
+methods_map = {'short': 'bt2', 'long': 'mm2', 'ont': 'mm2', 'illumina': 'bt2'}
 
 rule all_methods_fork:
   input: bam = lambda wildcards: str(output_dir/'align'/methods_map[sample_dict[wildcards.sample]['method']]/wildcards.sample+'.bam')
