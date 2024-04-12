@@ -4,6 +4,5 @@ all:
   sample_list: "/path/to/samples.tsv"
 
 align:
-  seq_method: "illumina" # ["illumina", "ont"]
   target_fasta: "/path/to/reference.fasta"
   #target_fasta: "reference/MN985325_1.fasta" # SARS-CoV-2 reference
