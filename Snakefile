@@ -92,25 +92,6 @@ rule all_methods_fork:
       ln -sr {input} {output}
       """
 
-if config["align"]["seq_method"] == "ont":
-  rule symlink_alignments_mm2:
-    input: rules.align_mm2.output
-    output: str(output_dir/'align'/'{sample}.bam')
-    shell:
-      """
-      ln -sr {input} {output}
-      """
-elif config["align"]["seq_method"] == "illumina":
-  rule symlink_alignments_bt2:
-    input: rules.align_bt2.output
-    output: str(output_dir/'align'/'{sample}.bam')
-    shell: 
-      """
-      ln -sr {input} {output}
-      """
-else:
-  raise KeyError("Unrecognized sequencing method provided: " + str(config["align"]["seq_method"]))
-
 rule all_align:
   input: expand(output_dir/'align'/'{sample}.bam', sample = sample_dict.keys())
 
