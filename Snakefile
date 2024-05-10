@@ -70,7 +70,7 @@ rule align_mm2:
     r2 = lambda wildcards: sample_dict[wildcards.sample]['r2']
   output: output_dir/'align'/'mm2'/'{sample}.bam'
   params:
-    sam = str(output_dir/'align'/'mm2'/'{sample}.sam')
+    sam = str(output_dir/'align'/'mm2'/'{sample}.sam'),
     opt = "map-ont"
   threads: 10
   shell:
