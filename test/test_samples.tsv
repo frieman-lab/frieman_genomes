@@ -1,0 +1,3 @@
+sample_name	paired	method	r1	r2
+paired1	True	short	data/paired1_r1.fastq.gz	data/paired1_r2.fastq.gz
+paired2	True	long	data/paired2_r1.fastq.gz	data/paired2_r2.fastq.gz

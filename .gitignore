@@ -1,1 +1,4 @@
-test/
+#test/
+slurm*
+.snakemake/
+output/
