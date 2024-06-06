@@ -51,16 +51,13 @@ rule align_bt2:
     index_generated = rules.build_bt2_index.output,
     r1 = lambda wildcards: sample_dict[wildcards.sample]['r1'],
     r2 = lambda wildcards: sample_dict[wildcards.sample]['r2']
-  output: output_dir/'align'/'bt2'/'{sample}.bam'
+  output: temp(output_dir/'align'/'bt2'/'{sample}.sam')
   params:
     bt2_index = str(output_dir/'db'/'bt2'/'target'),
-    sam = str(output_dir/'align'/'bt2'/'{sample}.sam')
   threads: 10
   shell:
     """
     bowtie2 -x {params.bt2_index} -1 {input.r1} -2 {input.r2} -S {params.sam} --threads {threads}
-    samtools view -u -@ {threads} -o {output} {params.sam}
-    rm {params.sam}
     """
 
 rule align_mm2:
@@ -68,28 +65,25 @@ rule align_mm2:
     index = rules.build_mm2_index.output,
     r1 = lambda wildcards: sample_dict[wildcards.sample]['r1'],
     r2 = lambda wildcards: sample_dict[wildcards.sample]['r2']
-  output: output_dir/'align'/'mm2'/'{sample}.bam'
+  output: temp(output_dir/'align'/'mm2'/'{sample}.sam')
   params:
-    sam = str(output_dir/'align'/'mm2'/'{sample}.sam'),
     opt = "map-ont"
   threads: 10
   shell:
     """
     minimap2 -a {input.index} -t {threads} {input.r1} {input.r2} > {output}
-    samtools view -u -@ {threads} -o {output} {params.sam}
-    rm {params.sam}
     """
-
-# fork between illumina/ont here
 
 methods_map = {'short': 'bt2', 'long': 'mm2', 'ont': 'mm2', 'illumina': 'bt2'}
 
-rule all_methods_fork:
-  input: bam = lambda wildcards: str(output_dir/'align'/methods_map[sample_dict[wildcards.sample]['method']]/wildcards.sample)+'.bam'
+# fork between illumina/ont here
+rule sam_to_bam:
+  input: bam = lambda wildcards: str(output_dir/'align'/methods_map[sample_dict[wildcards.sample]['method']]/wildcards.sample)+'.sam'
   output: str(output_dir/'align'/'{sample}.bam')
+  threads: 10
   shell:
     """
-    ln -sr {input} {output}
+    samtools view -u -@ {threads} -o {output} {input}
     """
 
 rule all_align:
@@ -113,7 +107,7 @@ rule generate_vcf:
   input:
     ref = config["align"]["target_fasta"],
     sorted_bam = str(output_dir/'align'/'{sample}.bam.sorted')
-  output: 
+  output:
     vcf = str(output_dir/'consensus'/'{sample}'/'{sample}_calls.vcf'),
     compressed_vcf = str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}_calls.vcf.gz')
   params:
