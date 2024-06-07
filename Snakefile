@@ -30,6 +30,7 @@ rule build_bt2_index:
   output: output_dir/'db'/'bt2'/'target.1.bt2'
   params: target = str(output_dir/'db'/'bt2'/'target')
   threads: 10
+  conda: "envs/bowtie2.yml"
   shell:
     """
     bowtie2-build {input} {params.target} --threads {threads}
@@ -40,6 +41,7 @@ rule build_mm2_index:
   output: output_dir/'db'/'mm2'/'target.mmi'
   params: opt = "map-ont" # option to make user-configurable
   threads: 10
+  conda: "envs/minimap2.yml"
   shell:
     """
     minimap2 -x {params.opt} -t {threads} -d {output} {input}
@@ -55,6 +57,7 @@ rule align_bt2:
   params:
     bt2_index = str(output_dir/'db'/'bt2'/'target'),
   threads: 10
+  conda: "envs/bowtie2.yml"
   shell:
     """
     bowtie2 -x {params.bt2_index} -1 {input.r1} -2 {input.r2} -S {params.sam} --threads {threads}
@@ -69,6 +72,7 @@ rule align_mm2:
   params:
     opt = "map-ont"
   threads: 10
+  conda: "envs/minimap2.yml"
   shell:
     """
     minimap2 -a {input.index} -t {threads} {input.r1} {input.r2} > {output}
@@ -81,6 +85,7 @@ rule sam_to_bam:
   input: bam = lambda wildcards: str(output_dir/'align'/methods_map[sample_dict[wildcards.sample]['method']]/wildcards.sample)+'.sam'
   output: str(output_dir/'align'/'{sample}.bam')
   threads: 10
+  conda: "envs/process_alignments.yml"
   shell:
     """
     samtools view -u -@ {threads} -o {output} {input}
@@ -97,6 +102,7 @@ rule sort_index_bam:
     sorted_bam = str(output_dir/'align'/'{sample}.bam.sorted'),
     index = str(output_dir/'align'/'{sample}.bam.sorted.bai')
   threads: 10
+  conda: "envs/process_alignments.yml"
   shell:
     """
     samtools sort -@ {threads} -o {output.sorted_bam} {input.bam}
@@ -113,6 +119,7 @@ rule generate_vcf:
   params:
     prefix = str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}')
   threads: 10
+  conda: "envs/process_alignments.yml"
   shell:
     """
     bcftools mpileup -Ou --max-depth 10000 --max-idepth 10000 --annotate FORMAT/AD -f {input.ref} {input.sorted_bam} | bcftools call -mv -Oz -o {params.prefix}_unfilled_calls.vcf.gz
@@ -132,6 +139,7 @@ rule generate_consensus:
   output: str(output_dir/'consensus'/'{sample}'/'{sample}_raw.fasta')
   params:
     sample = "{sample}"
+  conda: "envs/process_alignments.yml"
   shell:
     """
     bcftools consensus {input.calls} -p {params.sample}_raw -f {input.ref} > {output}
