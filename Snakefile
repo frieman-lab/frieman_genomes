@@ -55,12 +55,12 @@ rule align_bt2:
     r2 = lambda wildcards: sample_dict[wildcards.sample]['r2']
   output: temp(output_dir/'align'/'bt2'/'{sample}.sam')
   params:
-    bt2_index = str(output_dir/'db'/'bt2'/'target'),
+    bt2_index = str(output_dir/'db'/'bt2'/'target')
   threads: 10
   conda: "envs/bowtie2.yml"
   shell:
     """
-    bowtie2 -x {params.bt2_index} -1 {input.r1} -2 {input.r2} -S {params.sam} --threads {threads}
+    bowtie2 -x {params.bt2_index} -1 {input.r1} -2 {input.r2} -S {output} --threads {threads}
     """
 
 rule align_mm2:
