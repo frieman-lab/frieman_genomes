@@ -9,11 +9,11 @@ Example run on the test dataset:
 ```
 git clone https://github.com/louiejtaylor/frieman_genomes
 cd test/
-snakemake all_summarize -p --snakefile ../Snakefile --configfile test_config.yml
+snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile test_config.yml
 ```
 
 Alternately, on a cluster (Slurm in the below example) the command could look like this:
 
 ```
-snakemake all_summarize -p --snakefile ../Snakefile --configfile test_config.yml --jobs 1 --cores 1 --latency-wait 30 --cluster "sbatch --mem 10G -c {threads} "
+snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile test_config.yml --jobs 1 --cores 1 --latency-wait 30 --cluster "sbatch --mem 10G -c {threads} "
 ```
