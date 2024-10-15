@@ -4,16 +4,16 @@ Snakemake pipeline for reference-guided genome assembly. Requires snakemake and 
 
 Used by [Frieman lab](https://www.medschool.umaryland.edu/profiles/frieman-matthew/) members for genome assembly of sequenced laboratory stocks.
 
-Example run on the test dataset:
+Example run on a small dataset:
 
 ```
 git clone https://github.com/louiejtaylor/frieman_genomes
-cd test/
-snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile test_config.yml
+cd example/
+snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile example_config.yml
 ```
 
 Alternately, on a cluster (Slurm in the below example) the command could look like this:
 
 ```
-snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile test_config.yml --jobs 1 --cores 1 --latency-wait 30 --cluster "sbatch --mem 10G -c {threads} "
+snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile example_config.yml --jobs 1 --cores 1 --latency-wait 30 --cluster "sbatch --mem 10G -c {threads} "
 ```
