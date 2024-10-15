@@ -1,0 +1,7 @@
+all:
+  root_dir: "."
+  output_dir: "output"
+  sample_list: "example_samples.tsv"
+
+align:
+  target_fasta: "../reference/MN985325_1.fasta"
