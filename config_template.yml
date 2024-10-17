@@ -1,6 +1,5 @@
 all:
-  root_dir: "/path/to/root/dir"
-  output_dir: "output"
+  output_dir: "/path/to/output_dir"
   sample_list: "/path/to/samples.tsv"
 
 align:

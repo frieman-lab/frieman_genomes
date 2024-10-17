@@ -22,7 +22,7 @@ def read_samples(sample_list):
   return sample_dict
 
 sample_dict = read_samples(Path(config["all"]["sample_list"]))
-output_dir = Path(config["all"]["root_dir"])/Path(config["all"]["output_dir"])
+output_dir = Path(config["all"]["output_dir"])
 
 # build indices
 rule build_bt2_index:

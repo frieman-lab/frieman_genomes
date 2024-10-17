@@ -1,5 +1,4 @@
 all:
-  root_dir: "."
   output_dir: "output"
   sample_list: "example_samples.tsv"
 
