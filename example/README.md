@@ -10,7 +10,6 @@ This file contains the configuration required for the pipeline. The pipeline nee
 
 ```
 all:
-  root_dir: "."
   output_dir: "output"
   sample_list: "example_samples.tsv"
 
