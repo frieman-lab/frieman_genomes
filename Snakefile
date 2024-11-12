@@ -18,6 +18,7 @@ def read_samples(sample_list):
       raise RuntimeError("Not all samples have unique names:" + fields[0] + "appears twice.")
     else:
       added_samples.append(fields[0])
+    # don't need fields[1]--unpaired if no r2 given
     sample_dict[fields[0]] = {'paired':fields[1] == "True", 'method':fields[2], 'r1':Path(fields[3]), 'r2':Path(fields[4])}
   return sample_dict
 
