@@ -8,6 +8,7 @@ from pathlib import Path
 
 # sample sheet format:
 #sample_name     paired  method  r1      r2
+#              True/False short/long
 
 def read_samples(sample_list):
   sample_dict = {}
