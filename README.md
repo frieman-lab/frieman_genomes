@@ -1,6 +1,6 @@
 # frieman_genomes
 
-Snakemake pipeline for reference-guided genome assembly. Requires snakemake and conda installed (handling dependencies inline TBA).
+Snakemake pipeline for reference-guided genome assembly. Requires snakemake, conda, and mamba installed. The pipeline handles the rest of the dependencies at runtime.
 
 Used by [Frieman lab](https://www.medschool.umaryland.edu/profiles/frieman-matthew/) members for genome assembly of sequenced laboratory stocks.
 
