@@ -4,7 +4,7 @@ This is a very small, example dataset that should run on most machines.
 
 Associated files:
 
-## example_config.yml
+### example_config.yml
 
 This file contains the configuration required for the pipeline. The pipeline needs paths to a sample list (below), where to save the output, and a .fasta-formatted target to align to.
 
@@ -17,7 +17,7 @@ align:
   target_fasta: "../reference/MN985325_1.fasta"
 ```
 
-## example_samples.yml
+### example_samples.yml
 
 This file contains sample information in a tab-separated format. Paths to paired read files as well as information on the data collection strategy (e.g. long or short read sequencing) are included below.
 
