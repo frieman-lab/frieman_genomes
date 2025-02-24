@@ -85,7 +85,7 @@ methods_map = {'short': 'bt2', 'long': 'mm2', 'ont': 'mm2', 'illumina': 'bt2'}
 # fork between illumina/ont here
 rule sam_to_bam:
   input: bam = lambda wildcards: str(output_dir/'align'/methods_map[sample_dict[wildcards.sample]['method']]/wildcards.sample)+'.sam'
-  output: str(output_dir/'align'/'{sample}.bam')
+  output: temp(str(output_dir/'align'/'{sample}.bam'))
   threads: 10
   conda: "envs/process_alignments.yml"
   shell:
