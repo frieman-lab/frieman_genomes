@@ -2,3 +2,4 @@
 slurm*
 .snakemake/
 output/
+*.fai

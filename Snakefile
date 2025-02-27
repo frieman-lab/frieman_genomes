@@ -133,6 +133,14 @@ rule generate_vcf:
     gzip -cd {output.compressed_vcf} > {output.vcf}
     """
 
+# bcftools consensus will assign ref to even locs with zero coverage
+# # need bcftools genomecov followed by bcftools maskfasta to provide
+# # a masked reference for bcftools consensus
+
+#rule find_coverage:
+
+#rule mask_ref_fasta:
+
 # credit to https://www.biostars.org/p/367626/#417214
 rule generate_consensus:
   input: 
