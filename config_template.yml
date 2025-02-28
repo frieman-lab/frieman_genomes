@@ -5,3 +5,6 @@ all:
 align:
   target_fasta: "/path/to/reference.fasta"
   #target_fasta: "reference/MN985325_1.fasta" # SARS-CoV-2 reference
+
+coverage:
+  min_depth: 10 # minimum coverage depth to make a nt call at given position

@@ -4,3 +4,6 @@ all:
 
 align:
   target_fasta: "../reference/MN985325_1.fasta"
+
+coverage:
+  min_depth: 1
