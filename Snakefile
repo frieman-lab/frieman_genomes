@@ -134,10 +134,25 @@ rule generate_vcf:
     """
 
 # bcftools consensus will assign ref to even locs with zero coverage
-# # need bcftools genomecov followed by bcftools maskfasta to provide
-# # a masked reference for bcftools consensus
+# need bcftools genomecov followed by bcftools maskfasta to provide
+# a masked reference for bcftools consensus
 
-#rule find_coverage:
+rule find_coverage:
+  input: str(output_dir/'align'/'{sample}.bam.sorted')
+  output: 
+    cov = str(output_dir/'consensus'/'{sample}.bed'),
+    low_cov_regions = str(output_dir/'consensus'/'{sample}_lowcov.bed')
+  conda: "envs/process_alignments.yml"
+  shell:
+    """
+    bedtools genomecov -ibam {input} -split -bga > {output.cov}
+    cat {output.cov} | grep -w 0$ > {output.low_cov_regions}
+    """
+
+rule find_low_coverage_regions:
+  input: str(output_dir/'consensus'/'{sample}.bed')
+  output: str(output_dir/'consensus'/'{sample}_lowcov.bed')
+  params: 
 
 #rule mask_ref_fasta:
 
