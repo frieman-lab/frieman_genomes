@@ -3,6 +3,7 @@
 # Workflow for viral genomes from short or long read sequencing.
 
 from pathlib import Path
+import pandas as pd
 
 # initialize
 
@@ -146,15 +147,27 @@ rule find_coverage:
   shell:
     """
     bedtools genomecov -ibam {input} -split -bga > {output.cov}
-    cat {output.cov} | grep -w 0$ > {output.low_cov_regions}
+    #cat {output.cov} | grep -w 0$ > {output.low_cov_regions}
     """
 
 rule find_low_coverage_regions:
   input: str(output_dir/'consensus'/'{sample}.bed')
   output: str(output_dir/'consensus'/'{sample}_lowcov.bed')
-  params: 
+  params: min_reads = int(config["coverage"]["min_depth"])
+  run:
+    in_bed = pd.read_csv(input, sep='\t')
+    in_bed[in_bed[3] < params.min_reads].drop(columns=[3]).to_csv(output, index = False, header = False) 
 
-#rule mask_ref_fasta:
+rule mask_ref_fasta:
+  input: 
+    uncovered_bed = str(output_dir/'consensus'/'{sample}_lowcov.bed'),
+    ref = config["align"]["target_fasta"]
+  output: str(output_dir/'consensus'/'{sample}_masked.fasta')
+  conda: "envs/process_alignments.yml"
+  shell:
+    """
+    bedtools maskfasta -fi {input.ref} -bed {input.uncovered_bed} -fo {output}
+    """
 
 # credit to https://www.biostars.org/p/367626/#417214
 rule generate_consensus:
