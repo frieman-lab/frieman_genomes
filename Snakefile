@@ -173,7 +173,7 @@ rule mask_ref_fasta:
 rule generate_consensus:
   input: 
     calls = str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}_calls.vcf.gz'),
-    ref = config["align"]["target_fasta"]
+    ref = str(output_dir/'consensus'/'{sample}_masked.fasta')
   output: str(output_dir/'consensus'/'{sample}'/'{sample}_raw.fasta')
   params:
     sample = "{sample}"
