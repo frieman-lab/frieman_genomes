@@ -152,7 +152,7 @@ rule find_coverage:
 
 rule find_low_coverage_regions:
   input: str(output_dir/'consensus'/'{sample}.bed')
-  output: str(output_dir/'consensus'/'{sample}_lowcov.bed')
+  output: str(output_dir/'consensus'/'lowcov_{sample}.bed')
   params: min_reads = int(config["coverage"]["min_depth"])
   run:
     in_bed = pd.read_csv(input, sep='\t')
@@ -160,7 +160,7 @@ rule find_low_coverage_regions:
 
 rule mask_ref_fasta:
   input: 
-    uncovered_bed = str(output_dir/'consensus'/'{sample}_lowcov.bed'),
+    uncovered_bed = str(output_dir/'consensus'/'lowcov_{sample}.bed'),
     ref = config["align"]["target_fasta"]
   output: str(output_dir/'consensus'/'{sample}_masked.fasta')
   conda: "envs/process_alignments.yml"
