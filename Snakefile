@@ -140,14 +140,11 @@ rule generate_vcf:
 
 rule find_coverage:
   input: str(output_dir/'align'/'{sample}.bam.sorted')
-  output: 
-    cov = str(output_dir/'consensus'/'{sample}.bed'),
-    low_cov_regions = str(output_dir/'consensus'/'{sample}_lowcov.bed')
+  output: str(output_dir/'consensus'/'{sample}.bed')
   conda: "envs/process_alignments.yml"
   shell:
     """
-    bedtools genomecov -ibam {input} -split -bga > {output.cov}
-    #cat {output.cov} | grep -w 0$ > {output.low_cov_regions}
+    bedtools genomecov -ibam {input} -split -bga > {output}
     """
 
 rule find_low_coverage_regions:
