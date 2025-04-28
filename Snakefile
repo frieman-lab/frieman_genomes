@@ -148,12 +148,16 @@ rule find_coverage:
     """
 
 rule find_low_coverage_regions:
-  input: str(output_dir/'consensus'/'{sample}.bed')
-  output: str(output_dir/'consensus'/'lowcov_{sample}.bed')
+  input: 
+    cov_bed = str(output_dir/'consensus'/'{sample}.bed')
+  output:
+    low_cov_bed = str(output_dir/'consensus'/'lowcov_{sample}.bed')
   params: min_reads = int(config["coverage"]["min_depth"])
   run:
-    in_bed = pd.read_csv(input, sep='\t')
-    in_bed[in_bed[3] < params.min_reads].drop(columns=[3]).to_csv(output, index = False, header = False) 
+    in_bed = pd.read_csv(str(input.cov_bed), sep='\t', header = None)
+    print(in_bed)
+    filtered_bed = in_bed[in_bed[3] < params.min_reads]
+    filtered_bed.drop(columns=[3]).to_csv(str(output.low_cov_bed), sep = '\t', index = False, header = False) 
 
 rule mask_ref_fasta:
   input: 
