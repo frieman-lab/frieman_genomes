@@ -112,6 +112,7 @@ rule sort_index_bam:
     samtools index -@ {threads} {output.sorted_bam} {output.index}
     """
 
+# call variants
 rule generate_vcf:
   input:
     ref = config["align"]["target_fasta"],
@@ -134,10 +135,7 @@ rule generate_vcf:
     gzip -cd {output.compressed_vcf} > {output.vcf}
     """
 
-# bcftools consensus will assign ref to even locs with zero coverage
-# need bcftools genomecov followed by bcftools maskfasta to provide
-# a masked reference for bcftools consensus
-
+# find coverage: to mask low-cov areas in the final consensus
 rule find_coverage:
   input: str(output_dir/'align'/'{sample}.bam.sorted')
   output: str(output_dir/'consensus'/'{sample}.bed')
@@ -147,6 +145,7 @@ rule find_coverage:
     bedtools genomecov -ibam {input} -split -bga > {output}
     """
 
+# make the file to mask the ref
 rule find_low_coverage_regions:
   input: 
     cov_bed = str(output_dir/'consensus'/'{sample}.bed')
@@ -159,6 +158,7 @@ rule find_low_coverage_regions:
     filtered_bed = in_bed[in_bed[3] < params.min_reads]
     filtered_bed.drop(columns=[3]).to_csv(str(output.low_cov_bed), sep = '\t', index = False, header = False) 
 
+# sample-wise reference masking
 rule mask_ref_fasta:
   input: 
     uncovered_bed = str(output_dir/'consensus'/'lowcov_{sample}.bed'),
