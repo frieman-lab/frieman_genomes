@@ -112,6 +112,55 @@ rule sort_index_bam:
     samtools index -@ {threads} {output.sorted_bam} {output.index}
     """
 
+# find coverage: to mask low-cov areas in the final consensus
+rule find_coverage:
+  input: str(output_dir/'align'/'{sample}.bam.sorted')
+  output: str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}.bed')
+  conda: "envs/process_alignments.yml"
+  shell:
+    """
+    bedtools genomecov -ibam {input} -split -bga > {output}
+    """
+
+# make the file to mask the ref
+rule find_low_coverage_regions:
+  input: 
+    cov_bed = str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}.bed')
+  output:
+    low_cov_bed = str(output_dir/'consensus'/'{sample}'/'intermediates'/'lowcov_{sample}.bed')
+  params: min_reads = int(config["coverage"]["min_depth"])
+  run:
+    in_bed = pd.read_csv(str(input.cov_bed), sep='\t', header = None)
+    print(in_bed)
+    filtered_bed = in_bed[in_bed[3] < params.min_reads]
+    filtered_bed.drop(columns=[3]).to_csv(str(output.low_cov_bed), sep = '\t', index = False, header = False) 
+
+# sample-wise reference masking
+rule mask_ref_fasta:
+  input: 
+    uncovered_bed = str(output_dir/'consensus'/'lowcov_{sample}.bed'),
+    ref = config["align"]["target_fasta"]
+  output: str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}_masked.fasta')
+  conda: "envs/process_alignments.yml"
+  shell:
+    """
+    bedtools maskfasta -fi {input.ref} -bed {input.uncovered_bed} -fo {output}
+    """
+
+# credit to https://www.biostars.org/p/367626/#417214
+rule generate_consensus:
+  input: 
+    calls = str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}_calls.vcf.gz'),
+    ref = str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}_masked.fasta')
+  output: str(output_dir/'consensus'/'{sample}'/'{sample}_raw.fasta')
+  params:
+    sample = "{sample}"
+  conda: "envs/process_alignments.yml"
+  shell:
+    """
+    bcftools consensus {input.calls} -p {params.sample}_raw -f {input.ref} > {output}
+    """
+
 # call variants
 rule generate_vcf:
   input:
@@ -133,55 +182,6 @@ rule generate_vcf:
     bcftools +fill-tags {params.prefix}_unfilled_calls.vcf.gz -Oz -o {output.compressed_vcf} -- -t VAF
     bcftools index {output.compressed_vcf} --threads {threads}
     gzip -cd {output.compressed_vcf} > {output.vcf}
-    """
-
-# find coverage: to mask low-cov areas in the final consensus
-rule find_coverage:
-  input: str(output_dir/'align'/'{sample}.bam.sorted')
-  output: str(output_dir/'consensus'/'{sample}.bed')
-  conda: "envs/process_alignments.yml"
-  shell:
-    """
-    bedtools genomecov -ibam {input} -split -bga > {output}
-    """
-
-# make the file to mask the ref
-rule find_low_coverage_regions:
-  input: 
-    cov_bed = str(output_dir/'consensus'/'{sample}.bed')
-  output:
-    low_cov_bed = str(output_dir/'consensus'/'lowcov_{sample}.bed')
-  params: min_reads = int(config["coverage"]["min_depth"])
-  run:
-    in_bed = pd.read_csv(str(input.cov_bed), sep='\t', header = None)
-    print(in_bed)
-    filtered_bed = in_bed[in_bed[3] < params.min_reads]
-    filtered_bed.drop(columns=[3]).to_csv(str(output.low_cov_bed), sep = '\t', index = False, header = False) 
-
-# sample-wise reference masking
-rule mask_ref_fasta:
-  input: 
-    uncovered_bed = str(output_dir/'consensus'/'lowcov_{sample}.bed'),
-    ref = config["align"]["target_fasta"]
-  output: str(output_dir/'consensus'/'{sample}_masked.fasta')
-  conda: "envs/process_alignments.yml"
-  shell:
-    """
-    bedtools maskfasta -fi {input.ref} -bed {input.uncovered_bed} -fo {output}
-    """
-
-# credit to https://www.biostars.org/p/367626/#417214
-rule generate_consensus:
-  input: 
-    calls = str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}_calls.vcf.gz'),
-    ref = str(output_dir/'consensus'/'{sample}_masked.fasta')
-  output: str(output_dir/'consensus'/'{sample}'/'{sample}_raw.fasta')
-  params:
-    sample = "{sample}"
-  conda: "envs/process_alignments.yml"
-  shell:
-    """
-    bcftools consensus {input.calls} -p {params.sample}_raw -f {input.ref} > {output}
     """
 
 rule symlink_summaries:
