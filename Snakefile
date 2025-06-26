@@ -138,7 +138,7 @@ rule find_low_coverage_regions:
 # sample-wise reference masking
 rule mask_ref_fasta:
   input: 
-    uncovered_bed = str(output_dir/'consensus'/'lowcov_{sample}.bed'),
+    uncovered_bed = str(output_dir/'consensus'/'{sample}'/'intermediates'/'lowcov_{sample}.bed'),
     ref = config["align"]["target_fasta"]
   output: str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}_masked.fasta')
   conda: "envs/process_alignments.yml"
