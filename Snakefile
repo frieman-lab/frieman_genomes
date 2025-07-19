@@ -50,6 +50,15 @@ rule build_mm2_index:
     minimap2 -x {params.opt} -t {threads} -d {output} {input}
     """
 
+#rule download_data:
+#  output:
+#    r1 = lambda wildcards: sample_dict[wildcards.sample]['r1'],
+#    r2 = lambda wildcards: sample_dict[wildcards.sample]['r2']
+#
+#
+#
+
+
 # align
 rule align_bt2:
   input:
