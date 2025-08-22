@@ -24,4 +24,4 @@ jobs:
           conda activate wf_test
           conda install -qy snakemake -c conda-forge -c bioconda
           cd example
-          snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile example_config.yml
+          snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile example_config.yml --cores 1

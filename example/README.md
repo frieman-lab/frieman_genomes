@@ -44,6 +44,6 @@ conda install snakemake mamba -c conda-forge -c bioconda
 
 git clone https://github.com/louiejtaylor/frieman_genomes
 cd example/
-snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile example_config.yml
+snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile example_config.yml --cores 1
 ```
 
