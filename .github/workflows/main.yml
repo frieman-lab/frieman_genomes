@@ -20,6 +20,8 @@ jobs:
           export PATH=${PATH}:$START_DIR/miniconda3/bin
           CONDA_BASE=$(conda info --base)
           source $CONDA_BASE/etc/profile.d/conda.sh
-          conda install snakemake -c conda-forge -c bioconda
+          conda create -n wf_test
+          conda activate wf_test
+          conda install -qy snakemake -c conda-forge
           cd example
           snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile example_config.yml
