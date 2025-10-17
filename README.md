@@ -1,6 +1,6 @@
 # frieman_genomes
 
-Snakemake pipeline for reference-guided genome assembly. Requires conda and snakemake installed. The pipeline handles the rest of the dependencies at runtime.
+Snakemake pipeline for reference-guided genome assembly. Requires `conda` and `snakemake` installed. The pipeline handles the rest of the dependencies at runtime.
 
 Each pipeline run needs an updated `config.yml` and `samples.tsv` file. Templates are provided, as well as an [example with more detailed instructions](example/)
 
