@@ -8,7 +8,7 @@ Example run on a small dataset:
 
 ```
 git clone https://github.com/louiejtaylor/frieman_genomes
-cd example/
+cd frieman_genomes/example/
 snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile example_config.yml --cores 1
 ```
 
