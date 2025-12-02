@@ -78,10 +78,10 @@ rule align_bt2:
     """
     secondread={input.r2}
     # check if R2 filepath is non-zero length (e.g. paired or single-end experiment)
-    if [ -n "$secondread" ]; then
-        bowtie2 -x {params.bt2_index} -1 {input.r1} -2 {input.r2} -S {output} --threads {threads}
+    if [ "$secondread" == "." ]; then
+        bowtie2 -x {params.bt2_index} -U {input.r1} -S {output} --threads {threads}
     else
-         bowtie2 -x {params.bt2_index} -U {input.r1} -S {output} --threads {threads}
+        bowtie2 -x {params.bt2_index} -1 {input.r1} -2 {input.r2} -S {output} --threads {threads}
     fi
     """
 
