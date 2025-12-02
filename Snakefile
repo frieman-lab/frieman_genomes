@@ -4,6 +4,7 @@
 
 from pathlib import Path
 import pandas as pd
+import warnings
 
 # initialize
 
@@ -20,7 +21,10 @@ def read_samples(sample_list):
       raise RuntimeError("Not all samples have unique names:" + fields[0] + "appears twice.")
     else:
       added_samples.append(fields[0])
-    # don't need fields[1]--unpaired if no r2 given
+    if len(fields) == 4:
+      fields = fields + [""]
+      warnings.warn("found only four columns; assuming unpaired data. if this assumption is incorrect please check your samples.tsv file")
+    # add checks for other sizes with assoc warning/error
     sample_dict[fields[0]] = {'paired':fields[1] == "True", 'method':fields[2], 'r1':Path(fields[3]), 'r2':Path(fields[4])}
   return sample_dict
 
@@ -72,7 +76,13 @@ rule align_bt2:
   conda: "envs/bowtie2.yml"
   shell:
     """
-    bowtie2 -x {params.bt2_index} -1 {input.r1} -2 {input.r2} -S {output} --threads {threads}
+    secondread={input.r2}
+    # check if R2 filepath is non-zero length (e.g. paired or single-end experiment)
+    if [ -n "$secondread" ]; then
+        bowtie2 -x {params.bt2_index} -1 {input.r1} -2 {input.r2} -S {output} --threads {threads}
+    else
+         bowtie2 -x {params.bt2_index} -U {input.r1} -S {output} --threads {threads}
+    fi
     """
 
 rule align_mm2:
