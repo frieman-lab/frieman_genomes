@@ -12,7 +12,7 @@ cd frieman_genomes/example/
 snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile example_config.yml --cores 1
 ```
 
-Alternately, on a cluster (Slurm in the below example) the command could look like this:
+Alternately, on a cluster (Slurm in the below example) the command could look like this (using snakemake<8.0):
 
 ```
 snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile example_config.yml --jobs 1 --cores 1 --latency-wait 30 --cluster "sbatch --mem 10G -c {threads} "
