@@ -3,3 +3,4 @@ slurm*
 .snakemake/
 output/
 *.fai
+logs/
