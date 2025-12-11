@@ -38,12 +38,12 @@ export PATH=${PATH}:${HOME}/miniconda3/bin
 
 # install dependencies through conda
 
-conda install snakemake mamba -c conda-forge -c bioconda
+conda install snakemake=7.25.4 -c conda-forge -c bioconda
 
 # download and run the pipeline on the test dataset
 
 git clone https://github.com/louiejtaylor/frieman_genomes
 cd example/
-snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile example_config.yml --cores 1
+snakemake all_summarize --use-conda --conda-frontend conda -p --snakefile ../Snakefile --configfile example_config.yml --cores 1
 ```
 

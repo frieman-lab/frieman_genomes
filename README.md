@@ -9,13 +9,13 @@ Example run on a small dataset:
 ```
 git clone https://github.com/louiejtaylor/frieman_genomes
 cd frieman_genomes/example/
-snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile example_config.yml --cores 1
+snakemake all_summarize --use-conda --conda-frontend conda -p --snakefile ../Snakefile --configfile example_config.yml --cores 1
 ```
 
 Alternately, on a cluster (Slurm in the below example) the command could look like this (using snakemake<8.0):
 
 ```
-snakemake all_summarize --use-conda -p --snakefile ../Snakefile --configfile example_config.yml --jobs 1 --cores 1 --latency-wait 30 --cluster "sbatch --mem 10G -c {threads} "
+snakemake all_summarize --use-conda --conda-frontend conda -p --snakefile ../Snakefile --configfile example_config.yml --jobs 1 --cores 1 --latency-wait 30 --cluster "sbatch --mem 10G -c {threads} "
 ```
 
 Used by [Frieman lab](https://www.medschool.umaryland.edu/profiles/frieman-matthew/) members for genome assembly of sequenced laboratory stocks.
