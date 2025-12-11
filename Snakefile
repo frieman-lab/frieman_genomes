@@ -147,37 +147,42 @@ rule find_low_coverage_regions:
     cov_bed = str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}.bed')
   output:
     low_cov_bed = str(output_dir/'consensus'/'{sample}'/'intermediates'/'lowcov_{sample}.bed')
-  params: min_reads = int(config["coverage"]["min_depth"])
+  params:
+    min_reads = int(config["coverage"]["min_depth"]),
+    sample = "{sample}"
   run:
     in_bed = pd.read_csv(str(input.cov_bed), sep='\t', header = None)
-    print(in_bed)
     filtered_bed = in_bed[in_bed[3] < params.min_reads]
-    filtered_bed.drop(columns=[3]).to_csv(str(output.low_cov_bed), sep = '\t', index = False, header = False) 
-
-# sample-wise reference masking
-rule mask_ref_fasta:
-  input: 
-    uncovered_bed = str(output_dir/'consensus'/'{sample}'/'intermediates'/'lowcov_{sample}.bed'),
-    ref = config["align"]["target_fasta"]
-  output: str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}_masked.fasta')
-  conda: "envs/process_alignments.yml"
-  shell:
-    """
-    bedtools maskfasta -fi {input.ref} -bed {input.uncovered_bed} -fo {output}
-    """
+    
+    # add sample name to id: important for masking later
+    filtered_bed[0] = params.sample + "_raw" + filtered_bed[0]
+    filtered_bed.drop(columns=[3]).to_csv(str(output.low_cov_bed), sep = '\t', index = False, header = False)
+    
 
 # credit to https://www.biostars.org/p/367626/#417214
 rule generate_consensus:
-  input: 
+  input:
     calls = str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}_calls.vcf.gz'),
-    ref = str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}_masked.fasta')
-  output: str(output_dir/'consensus'/'{sample}'/'{sample}_raw.fasta')
+    ref = config["align"]["target_fasta"]
+  output: str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}_raw_unmasked.fasta')
   params:
     sample = "{sample}"
   conda: "envs/process_alignments.yml"
   shell:
     """
     bcftools consensus {input.calls} -p {params.sample}_raw -f {input.ref} > {output}
+    """
+
+# mask consensus sequence based on coverage
+rule mask_consensus_fasta:
+  input:
+    uncovered_bed = str(output_dir/'consensus'/'{sample}'/'intermediates'/'lowcov_{sample}.bed'),
+    ref = str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}_raw_unmasked.fasta')
+  output: str(output_dir/'consensus'/'{sample}'/'{sample}_raw.fasta')
+  conda: "envs/process_alignments.yml"
+  shell:
+    """
+    bedtools maskfasta -fi {input.ref} -bed {input.uncovered_bed} -fo {output}
     """
 
 # call variants

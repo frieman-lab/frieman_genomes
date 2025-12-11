@@ -4,3 +4,4 @@ slurm*
 output/
 *.fai
 logs/
+test/
