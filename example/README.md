@@ -36,8 +36,10 @@ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh -b -p ${HOME}/miniconda3
 export PATH=${PATH}:${HOME}/miniconda3/bin
 
-# install dependencies through conda
+# create environment and install dependencies through conda
 
+conda create -n snakemake
+conda activate snakemake
 conda install snakemake=7.25.4 -c conda-forge -c bioconda
 
 # download and run the pipeline on the test dataset
