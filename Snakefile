@@ -62,13 +62,43 @@ rule build_mm2_index:
 #
 #
 
+rule trim_adapters:
+  input:
+    r1 = lambda wildcards: sample_dict[wildcards.sample]['r1'],
+    r2 = lambda wildcards: sample_dict[wildcards.sample]['r2']
+  output:
+    r1_t = str(output_dir/'qc'/'trimmed'/'{sample}_r1.fastq.gz')
+  params:
+    f_adatpers = config['qc']["forward_adapters"],
+    r_adapters = config['qc']["reverse_adapters"]
+  conda: "envs/cutadapt.yml"
+  shell:
+    """
+    secondread="." #{input.r2}
+    if [ "$secondread" == "." ]; then
+        if [ {params.f_adapters} == "" ]; then
+            if [ {params.r_adapters} == "" ]; then
+                ln -sr {input.r1} {output.r1_t}
+            else
+                echo "cutadapt single only reverse"
+            fi
+        else
+            if [ {params.r_adapters} == "" ]; then
+                echo "cutadapt single only forward"
+            else
+                cutadapt -a file:{params.f_adapters}X -g Xfile:{params.f_adapters} -o {output.r1_t} {input.r1}
+            fi
+    else
+        echo "build me"
+    fi
+    # Build this command dynamically in python instead of all these ifs
+    """
 
 # align
 rule align_bt2:
   input:
     index_generated = rules.build_bt2_index.output,
-    r1 = lambda wildcards: sample_dict[wildcards.sample]['r1'],
-    r2 = lambda wildcards: sample_dict[wildcards.sample]['r2']
+    r1 = rules.trim_adapters.output
   output: temp(output_dir/'align'/'bt2'/'{sample}.sam')
   params:
     bt2_index = str(output_dir/'db'/'bt2'/'target')
@@ -76,20 +106,20 @@ rule align_bt2:
   conda: "envs/bowtie2.yml"
   shell:
     """
-    secondread={input.r2}
+    secondread="." #{input.r2}
     # check if R2 filepath is non-zero length (e.g. paired or single-end experiment)
     if [ "$secondread" == "." ]; then
         bowtie2 -x {params.bt2_index} -U {input.r1} -S {output} --threads {threads}
     else
-        bowtie2 -x {params.bt2_index} -1 {input.r1} -2 {input.r2} -S {output} --threads {threads}
+        echo "build me"
+        # bowtie2 -x {params.bt2_index} -1 {input.r1} -2 {input.r2} -S {output} --threads {threads}
     fi
     """
 
 rule align_mm2:
   input:
     index = rules.build_mm2_index.output,
-    r1 = lambda wildcards: sample_dict[wildcards.sample]['r1'],
-    r2 = lambda wildcards: sample_dict[wildcards.sample]['r2']
+    r1 = rules.trim_adapters.output
   output: temp(output_dir/'align'/'mm2'/'{sample}.sam')
   params:
     opt = "map-ont"
@@ -97,7 +127,7 @@ rule align_mm2:
   conda: "envs/minimap2.yml"
   shell:
     """
-    minimap2 -a {input.index} -t {threads} {input.r1} {input.r2} > {output}
+    minimap2 -a {input.index} -t {threads} {input.r1} > {output} # {input.r2} > {output}
     """
 
 methods_map = {'short': 'bt2', 'long': 'mm2', 'ont': 'mm2', 'illumina': 'bt2'}

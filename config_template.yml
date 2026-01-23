@@ -2,6 +2,10 @@ all:
   output_dir: "/path/to/output_dir"
   sample_list: "/path/to/samples.tsv"
 
+qc: # fp to fasta files containing forward/reverse adapters (e.g. primer sequences) to trim
+  forward_adapters: ""
+  reverse_adapters: ""
+
 align:
   target_fasta: "/path/to/reference.fasta"
   #target_fasta: "reference/MN985325_1.fasta" # SARS-CoV-2 reference
