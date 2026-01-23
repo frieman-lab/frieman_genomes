@@ -36,7 +36,7 @@ rule build_bt2_index:
   input: config["align"]["target_fasta"]
   output: output_dir/'db'/'bt2'/'target.1.bt2'
   params: target = str(output_dir/'db'/'bt2'/'target')
-  threads: 10
+  threads: 20
   conda: "envs/bowtie2.yml"
   shell:
     """
@@ -47,7 +47,7 @@ rule build_mm2_index:
   input: config["align"]["target_fasta"]
   output: output_dir/'db'/'mm2'/'target.mmi'
   params: opt = "map-ont" # option to make user-configurable
-  threads: 10
+  threads: 20
   conda: "envs/minimap2.yml"
   shell:
     """
@@ -69,25 +69,26 @@ rule trim_adapters:
   output:
     r1_t = str(output_dir/'qc'/'trimmed'/'{sample}_r1.fastq.gz')
   params:
-    f_adatpers = config['qc']["forward_adapters"],
+    f_adapters = config['qc']["forward_adapters"],
     r_adapters = config['qc']["reverse_adapters"]
   conda: "envs/cutadapt.yml"
   shell:
     """
     secondread="." #{input.r2}
     if [ "$secondread" == "." ]; then
-        if [ {params.f_adapters} == "" ]; then
-            if [ {params.r_adapters} == "" ]; then
+        if [ "{params.f_adapters}" == "" ]; then
+            if [ "{params.r_adapters}" == "" ]; then
                 ln -sr {input.r1} {output.r1_t}
             else
                 echo "cutadapt single only reverse"
             fi
         else
-            if [ {params.r_adapters} == "" ]; then
-                echo "cutadapt single only forward"
+            if [ "{params.r_adapters}" == "" ]; then
+                cutadapt --rc -n 2 -g file:{params.f_adapters} -o {output.r1_t} {input.r1}
             else
-                cutadapt -a file:{params.f_adapters}X -g Xfile:{params.f_adapters} -o {output.r1_t} {input.r1}
+                cutadapt --rc -a file:{params.r_adapters} -g file:{params.f_adapters} -o {output.r1_t} {input.r1}
             fi
+        fi
     else
         echo "build me"
     fi
@@ -102,17 +103,17 @@ rule align_bt2:
   output: temp(output_dir/'align'/'bt2'/'{sample}.sam')
   params:
     bt2_index = str(output_dir/'db'/'bt2'/'target')
-  threads: 10
+  threads: 20
   conda: "envs/bowtie2.yml"
   shell:
     """
-    secondread="." #{input.r2}
+    secondread="." # OPENCURLY input.r2 CLOSECURLY
     # check if R2 filepath is non-zero length (e.g. paired or single-end experiment)
     if [ "$secondread" == "." ]; then
         bowtie2 -x {params.bt2_index} -U {input.r1} -S {output} --threads {threads}
     else
         echo "build me"
-        # bowtie2 -x {params.bt2_index} -1 {input.r1} -2 {input.r2} -S {output} --threads {threads}
+        # bowtie2 -x {params.bt2_index} -1 {input.r1} -2  OPENCURLY input.r2 CLOSECURLY -S {output} --threads {threads}
     fi
     """
 
@@ -123,7 +124,7 @@ rule align_mm2:
   output: temp(output_dir/'align'/'mm2'/'{sample}.sam')
   params:
     opt = "map-ont"
-  threads: 10
+  threads: 20
   conda: "envs/minimap2.yml"
   shell:
     """
@@ -136,7 +137,7 @@ methods_map = {'short': 'bt2', 'long': 'mm2', 'ont': 'mm2', 'illumina': 'bt2'}
 rule sam_to_bam:
   input: bam = lambda wildcards: str(output_dir/'align'/methods_map[sample_dict[wildcards.sample]['method']]/wildcards.sample)+'.sam'
   output: temp(str(output_dir/'align'/'{sample}.bam'))
-  threads: 10
+  threads: 20
   conda: "envs/process_alignments.yml"
   shell:
     """
@@ -153,7 +154,7 @@ rule sort_index_bam:
   output:
     sorted_bam = str(output_dir/'align'/'{sample}.bam.sorted'),
     index = str(output_dir/'align'/'{sample}.bam.sorted.bai')
-  threads: 10
+  threads: 20
   conda: "envs/process_alignments.yml"
   shell:
     """
@@ -225,7 +226,7 @@ rule generate_vcf:
     compressed_vcf = str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}_calls.vcf.gz')
   params:
     prefix = str(output_dir/'consensus'/'{sample}'/'intermediates'/'{sample}')
-  threads: 10
+  threads: 20
   conda: "envs/process_alignments.yml"
   shell:
     """
